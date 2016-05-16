@@ -47,4 +47,13 @@ typedef NS_ENUM(NSUInteger, LNNotificationBannerStyle) {
  */
 - (void)clearAllPendingNotifications;
 
+/**
+ *  获取LNBundle 的图片资源
+ *
+ *  @param filename 文件名称
+ *
+ *  @return 文件路径
+ */
+NSString *getLNImageBundlePath(NSString *filename);
+
 @end

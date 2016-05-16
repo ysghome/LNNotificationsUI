@@ -53,6 +53,8 @@
 	notification.defaultAction = nil;
 	
 	[[LNNotificationCenter defaultCenter] presentNotification:notification forApplicationIdentifier:@"123"];
+    
+    [[LNNotificationCenter defaultCenter] registerApplicationWithIdentifier:@"123" name:@"Notifications Demo App 1" icon:[UIImage imageNamed:@"DemoApp1Icon"] defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
 }
 
 - (IBAction)changeStyleButtonTapped:(id)sender {
@@ -62,13 +64,13 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 	
-	[[LNNotificationCenter defaultCenter] registerApplicationWithIdentifier:@"123" name:@"Notifications Demo App 1" icon:[UIImage imageNamed:@"DemoApp1Icon"] defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
-	[[LNNotificationCenter defaultCenter] registerApplicationWithIdentifier:@"456" name:@"Notifications Demo App 2" icon:[UIImage imageNamed:@"DemoApp2Icon"] defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
-	[[LNNotificationCenter defaultCenter] registerApplicationWithIdentifier:@"789" name:@"Notifications Demo App 3" icon:[UIImage imageNamed:@"DemoApp3Icon"] defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
+//	[[LNNotificationCenter defaultCenter] registerApplicationWithIdentifier:@"123" name:@"Notifications Demo App 1" icon:[UIImage imageNamed:@"DemoApp1Icon"] defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
+//	[[LNNotificationCenter defaultCenter] registerApplicationWithIdentifier:@"456" name:@"Notifications Demo App 2" icon:[UIImage imageNamed:@"DemoApp2Icon"] defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
+//	[[LNNotificationCenter defaultCenter] registerApplicationWithIdentifier:@"789" name:@"Notifications Demo App 3" icon:[UIImage imageNamed:@"DemoApp3Icon"] defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
 	
 	LNNotification* notification = [LNNotification notificationWithMessage:@"Welcome to LNNotificationsUI!"];
 	notification.title = @"Hello World!";
-	notification.soundName = @"demo.aiff";
+//	notification.soundName = @"demo.aiff";
 	notification.defaultAction = [LNNotificationAction actionWithTitle:@"View" handler:^(LNNotificationAction *action) {
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:notification.title message:@"Notification was tapped!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];

@@ -167,7 +167,11 @@ static NSString *const _LNSettingsKey = @"LNNotificationSettingsKey";
 	
 	if(icon == nil)
 	{
-		icon = [UIImage imageNamed:@"LNNotificationsUIDefaultAppIcon" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil];
+        if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8) {
+            icon = (![UIImage imageWithContentsOfFile:getLNImageBundlePath(@"LNNotificationsUIDefaultAppIcon")]) ? [UIImage new] : [UIImage imageWithContentsOfFile:getLNImageBundlePath(@"LNNotificationsUIDefaultAppIcon")];
+        }else {
+            icon = [UIImage imageNamed:@"LNNotificationsUIDefaultAppIcon" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil];
+        }
 	}
 	
 	_applicationMapping[appIdentifier] = @{LNAppNameKey: name, LNAppIconNameKey: icon};
@@ -189,6 +193,9 @@ static NSString *const _LNSettingsKey = @"LNNotificationSettingsKey";
 
 - (void)presentNotification:(LNNotification*)notification forApplicationIdentifier:(NSString*)appIdentifier
 {
+    if (!_applicationMapping[appIdentifier]) {
+        [self registerApplicationWithIdentifier:appIdentifier name:notification.title icon:notification.icon defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
+    }
 	NSAssert(_applicationMapping[appIdentifier] != nil, @"Unrecognized app identifier: %@. The app must be registered with the notification center before attempting presentation of notifications for it.", appIdentifier);
 	NSParameterAssert(notification.message != nil);
 	
@@ -340,6 +347,31 @@ static NSString *const _LNSettingsKey = @"LNNotificationSettingsKey";
 	[_currentAudioPlayer stop];
 	_currentAudioPlayer = nil;
 	[[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+}
+
+//获取LNBundle 的图片资源
+NSString *getLNImageBundlePath(NSString *filename) {
+    
+    NSBundle *libBundle = [NSBundle bundleWithPath:[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Frameworks"]stringByAppendingPathComponent:@"LNNotificationsUI.bundle"]];
+    
+    
+    if (libBundle && filename) {
+        CGFloat screenScale = [UIScreen mainScreen].scale;
+        NSString *filePath = [[libBundle resourcePath] stringByAppendingPathComponent:filename];
+        NSString *path = [filePath stringByAppendingString:[NSString stringWithFormat:@"@%fx.png", screenScale]];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {//判断当前分辨率是否存在
+            path = [filePath stringByAppendingString:@"@3x.png"];
+            if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+                path = [filePath stringByAppendingString:@"@2x.png"];
+                if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+                    path = [filePath stringByAppendingString:@".png"];
+                }
+            }
+        }
+        return path;
+    }
+    
+    return nil;
 }
 
 @end
