@@ -67,6 +67,12 @@ static const CGFloat LNNotificationRelativeLabelCollapse = 5.0 * 60.0;
 
 @end
 
+@interface LNNotificationBannerView()
+
+@property (nonatomic, strong, readwrite) UIView* customView;
+
+@end
+
 @implementation LNNotificationBannerView
 {
 	UIImageView* _appIcon;
@@ -288,7 +294,11 @@ static const CGFloat LNNotificationRelativeLabelCollapse = 5.0 * 60.0;
 	_appIcon.image = notification.icon;
 	_titleLabel.text = notification.title;
 	_messageLabel.text = notification.message;
-	
+    
+    if (notification.customView) {
+        [self createNotificationCustomView:notification.customView];
+    }
+    
 	if(notification.displaysWithRelativeDateFormatting && fabs([notification.date timeIntervalSinceNow]) <= LNNotificationRelativeLabelCollapse)
 	{
 		_dateLabel.text = NSLocalizedString(@"now", @"");
@@ -318,6 +328,40 @@ static const CGFloat LNNotificationRelativeLabelCollapse = 5.0 * 60.0;
 		
 		_dateLabel.text = [[formatter stringFromDate:notification.date] lowercaseString];
 	}
+}
+
+- (void)createNotificationCustomView:(UIView *)view
+{
+    if (!_customView) {
+        _customView = [UIView new];
+        [_customView setBackgroundColor:[UIColor clearColor]];
+        [self addSubview:_customView];
+        [_customView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_customView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1.0f constant:0.0f]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_customView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeRight multiplier:1.0f constant:0.0f]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:_customView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1.0f constant:0.0f]];
+        [_customView addConstraint:[NSLayoutConstraint constraintWithItem:_customView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0f constant:68.0f]];
+    }
+    
+    // Doesn't use autoresizing masks so that we can create constraints below manually
+    [view setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [self.customView addSubview:view];
+    
+//    // Setup Auto Layout constaints so that the custom view that is added is consrtained to be the same
+//    // size as its superview, whose frame will be altered
+    [self.customView addConstraint:[NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self.customView attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0.0]];
+    [self.customView addConstraint:[NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.customView attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0.0]];
+    [self.customView addConstraint:[NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.customView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0.0]];
+    [self.customView addConstraint:[NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.customView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0.0]];
+    
+    [self setupNotificationView:self.customView];
+}
+
+- (void)setupNotificationView:(UIView *)view
+{
+    view.clipsToBounds = YES;
+    view.userInteractionEnabled = YES;
 }
 
 @end

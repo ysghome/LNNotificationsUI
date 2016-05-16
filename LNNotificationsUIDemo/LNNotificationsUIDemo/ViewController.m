@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "SGNavigationBarNotificationView.h"
 
 @import LNNotificationsUI;
 
@@ -25,7 +26,7 @@
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:notification.title message:@"Notification was tapped!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
 	}];
-	
+	notification.customView = [self getCustomView];
 	[[LNNotificationCenter defaultCenter] presentNotification:notification forApplicationIdentifier:@"123"];
 	
 	notification = [LNNotification notificationWithMessage:@"You can customize most parts of the notification messages."];
@@ -33,13 +34,14 @@
 	notification.date = [[NSDate date] dateByAddingTimeInterval:-60 * 60 * 24 * 30];
 	notification.soundName = @"demo.aiff";
 	notification.defaultAction = nil;
-	
+	notification.customView = [self getCustomView];
 	[[LNNotificationCenter defaultCenter] presentNotification:notification forApplicationIdentifier:@"456"];
 	
 	notification = [LNNotification notificationWithMessage:@"You can swipe notifications up to dismiss them."];
 	notification.title = @"And Another";
 	notification.date = [[NSDate date] dateByAddingTimeInterval:-60 * 60 * 24 * 30];
 	notification.soundName = @"demo.aiff";
+    notification.customView = [self getCustomView];
 	notification.defaultAction = [LNNotificationAction actionWithTitle:@"View" handler:^(LNNotificationAction *action) {
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:notification.title message:@"Notification was tapped!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
@@ -51,10 +53,18 @@
 	notification.title = @"Last One";
 	notification.soundName = @"demo.aiff";
 	notification.defaultAction = nil;
+    notification.customView = [self getCustomView];
 	
 	[[LNNotificationCenter defaultCenter] presentNotification:notification forApplicationIdentifier:@"123"];
     
-    [[LNNotificationCenter defaultCenter] registerApplicationWithIdentifier:@"123" name:@"Notifications Demo App 1" icon:[UIImage imageNamed:@"DemoApp1Icon"] defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
+//    [[LNNotificationCenter defaultCenter] registerApplicationWithIdentifier:@"123" name:@"Notifications Demo App 1" icon:[UIImage imageNamed:@"DemoApp1Icon"] defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
+}
+
+- (UIView *)getCustomView{
+    SGNavigationBarNotificationView *customView = [[[NSBundle mainBundle] loadNibNamed:NSStringFromClass([SGNavigationBarNotificationView class]) owner:nil options:nil] firstObject];
+    [customView setFrame:CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width, 69.f)];
+    [customView setBackgroundColor:[UIColor colorWithRed:0.11 green:0.11 blue:0.11 alpha:1.00]];
+    return customView;
 }
 
 - (IBAction)changeStyleButtonTapped:(id)sender {
@@ -70,7 +80,8 @@
 	
 	LNNotification* notification = [LNNotification notificationWithMessage:@"Welcome to LNNotificationsUI!"];
 	notification.title = @"Hello World!";
-//	notification.soundName = @"demo.aiff";
+	notification.soundName = @"demo.aiff";
+    notification.customView = [self getCustomView];
 	notification.defaultAction = [LNNotificationAction actionWithTitle:@"View" handler:^(LNNotificationAction *action) {
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:notification.title message:@"Notification was tapped!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];

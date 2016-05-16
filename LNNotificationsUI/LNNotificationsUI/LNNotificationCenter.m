@@ -13,42 +13,6 @@
 
 #import <AVFoundation/AVFoundation.h>
 
-@interface LNNotificationAlertView : UIAlertView <UIAlertViewDelegate>
-
-@property (nonatomic, retain) LNNotification* alertBackingNotification;
-
-@end
-
-@implementation LNNotificationAlertView
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-	if(buttonIndex == alertView.cancelButtonIndex)
-	{
-		return;
-	}
-	
-	if(buttonIndex == alertView.cancelButtonIndex + 1 && self.alertBackingNotification.defaultAction.handler)
-	{
-		self.alertBackingNotification.defaultAction.handler(self.alertBackingNotification.defaultAction);
-	}
-	
-	if(buttonIndex > alertView.cancelButtonIndex + 1 && [self.alertBackingNotification.otherActions[buttonIndex - 2] handler] != nil)
-	{
-		LNNotificationAction* action = self.alertBackingNotification.otherActions[buttonIndex - 2];
-		action.handler(action);
-	}
-}
-
-- (void)show
-{
-	self.delegate = self;
-	
-	[super show];
-}
-
-@end
-
 @interface LNNotification ()
 
 @property (nonatomic, copy) NSString* appIdentifier;
@@ -57,14 +21,11 @@
 
 static LNNotificationCenter* __ln_defaultNotificationCenter;
 
-static NSString *const _LNSettingsKey = @"LNNotificationSettingsKey";
-
-@interface LNNotificationCenter () <UIAlertViewDelegate, AVAudioPlayerDelegate> @end
+@interface LNNotificationCenter () <AVAudioPlayerDelegate> @end
 
 @implementation LNNotificationCenter
 {
 	NSMutableDictionary* _applicationMapping;
-	NSMutableDictionary* _notificationSettings;
 	LNNotificationBannerWindow* _notificationWindow;
 	NSMutableArray* _pendingNotifications;
 	
@@ -96,12 +57,6 @@ static NSString *const _LNSettingsKey = @"LNNotificationSettingsKey";
 	{
 		_applicationMapping = [NSMutableDictionary new];
 		_pendingNotifications = [NSMutableArray new];
-		
-		_notificationSettings = [[[NSUserDefaults standardUserDefaults] valueForKey:_LNSettingsKey] mutableCopy];
-		if(_notificationSettings == nil)
-		{
-			_notificationSettings = [NSMutableDictionary new];
-		}
 		
 		_orientationHandler = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillChangeStatusBarOrientationNotification object:nil queue:NSOperationQueue.mainQueue usingBlock:^(NSNotification *note) {
 			
@@ -159,28 +114,6 @@ static NSString *const _LNSettingsKey = @"LNNotificationSettingsKey";
 	}
 }
 
-- (void)registerApplicationWithIdentifier:(NSString*)appIdentifier name:(NSString*)name icon:(UIImage*)icon defaultSettings:(LNNotificationAppSettings *)defaultSettings
-{
-	NSParameterAssert(appIdentifier != nil);
-	NSParameterAssert(name != nil);
-	NSParameterAssert(defaultSettings != nil);
-	
-	if(icon == nil)
-	{
-        if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8) {
-            icon = (![UIImage imageWithContentsOfFile:getLNImageBundlePath(@"LNNotificationsUIDefaultAppIcon")]) ? [UIImage new] : [UIImage imageWithContentsOfFile:getLNImageBundlePath(@"LNNotificationsUIDefaultAppIcon")];
-        }else {
-            icon = [UIImage imageNamed:@"LNNotificationsUIDefaultAppIcon" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil];
-        }
-	}
-	
-	_applicationMapping[appIdentifier] = @{LNAppNameKey: name, LNAppIconNameKey: icon};
-	if(_notificationSettings[appIdentifier] == nil)
-	{
-		[self _setSettings:defaultSettings enabled:YES forAppIdentifier:appIdentifier];
-	}
-}
-
 - (void)clearPendingNotificationsForApplicationIdentifier:(NSString*)appIdentifier;
 {
 	[_pendingNotifications filterUsingPredicate:[NSPredicate predicateWithFormat:@"appIdentifier != %@", appIdentifier]];
@@ -193,53 +126,16 @@ static NSString *const _LNSettingsKey = @"LNNotificationSettingsKey";
 
 - (void)presentNotification:(LNNotification*)notification forApplicationIdentifier:(NSString*)appIdentifier
 {
-    if (!_applicationMapping[appIdentifier]) {
-        [self registerApplicationWithIdentifier:appIdentifier name:notification.title icon:notification.icon defaultSettings:[LNNotificationAppSettings defaultNotificationAppSettings]];
-    }
-	NSAssert(_applicationMapping[appIdentifier] != nil, @"Unrecognized app identifier: %@. The app must be registered with the notification center before attempting presentation of notifications for it.", appIdentifier);
-	NSParameterAssert(notification.message != nil);
-	
-	if([_notificationSettings[appIdentifier][LNNotificationsDisabledKey] boolValue])
-	{
-		return;
-	}
-	
-	if([_notificationSettings[appIdentifier][LNAppAlertStyleKey] unsignedIntegerValue] == LNNotificationAlertStyleNone)
-	{
-		[self _handleSoundForAppId:appIdentifier fileName:notification.soundName];
-	}
-	else
-	{
-		LNNotification* pendingNotification = [notification copy];
-		
-		pendingNotification.title = notification.title ? notification.title : _applicationMapping[appIdentifier][LNAppNameKey];
-		pendingNotification.icon = notification.icon ? notification.icon : _applicationMapping[appIdentifier][LNAppIconNameKey];
-		pendingNotification.appIdentifier = appIdentifier;
-		
-		if([_notificationSettings[appIdentifier][LNAppAlertStyleKey] unsignedIntegerValue] == LNNotificationAlertStyleAlert)
-		{
-			LNNotificationAlertView* alert = [[LNNotificationAlertView alloc] initWithTitle:pendingNotification.title message:pendingNotification.message delegate:self cancelButtonTitle:NSLocalizedString(@"Close", @"") otherButtonTitles:nil];
-			
-			if(pendingNotification.defaultAction)
-			{
-				[alert addButtonWithTitle:pendingNotification.defaultAction.title];
-			}
-			
-			[pendingNotification.otherActions enumerateObjectsUsingBlock:^(LNNotificationAction* alertAction, NSUInteger idx, BOOL *stop) {
-				[alert addButtonWithTitle:alertAction.title];
-			}];
-			
-			alert.alertBackingNotification = pendingNotification;
-			[alert show];
-			[self _handleSoundForAppId:appIdentifier fileName:notification.soundName];
-		}
-		else
-		{
-			[_pendingNotifications addObject:pendingNotification];
-			
-			[self _handlePendingNotifications];
-		}
-	}
+    LNNotification* pendingNotification = [notification copy];
+    
+    pendingNotification.title = notification.title ? notification.title : _applicationMapping[appIdentifier][LNAppNameKey];
+    pendingNotification.icon = notification.icon ? notification.icon : _applicationMapping[appIdentifier][LNAppIconNameKey];
+    pendingNotification.appIdentifier = appIdentifier;
+    pendingNotification.customView = notification.customView;
+    
+    [_pendingNotifications addObject:pendingNotification];
+    
+    [self _handlePendingNotifications];
 }
 
 - (void)_handlePendingNotifications
@@ -301,11 +197,6 @@ static NSString *const _LNSettingsKey = @"LNNotificationSettingsKey";
 		return;
 	}
 	
-	if(![_notificationSettings[appId][LNAppSoundsKey] boolValue])
-	{
-		return;
-	}
-	
 	NSString *soundFilePath = [NSString stringWithFormat:@"%@/%@", [[NSBundle mainBundle] resourcePath], fileName];
 	NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
 	
@@ -319,25 +210,6 @@ static NSString *const _LNSettingsKey = @"LNNotificationSettingsKey";
 - (NSDictionary*)_applicationsMapping
 {
 	return _applicationMapping;
-}
-
-- (NSDictionary*)_notificationSettings
-{
-	return _notificationSettings;
-}
-
-- (void)_setSettings:(LNNotificationAppSettings*)settings enabled:(BOOL)enabled forAppIdentifier:(NSString*)appIdentifier
-{
-	_notificationSettings[appIdentifier] = @{LNAppAlertStyleKey: @(settings.alertStyle), LNNotificationsDisabledKey: @(!enabled), LNAppSoundsKey: @(settings.soundEnabled)};
-	
-	[[NSUserDefaults standardUserDefaults] setObject:_notificationSettings forKey:_LNSettingsKey];
-}
-
-- (void)_setSettingsDictionary:(NSDictionary*)settings forAppIdentifier:(NSString*)appIdentifier
-{
-	_notificationSettings[appIdentifier] = [settings copy];
-	
-	[[NSUserDefaults standardUserDefaults] setObject:_notificationSettings forKey:_LNSettingsKey];
 }
 
 #pragma mark AVAudioPlayerDelegate

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		383689901CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3836898E1CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.m */; };
+		383689911CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3836898F1CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.xib */; };
 		392230B31C3091E90070D863 /* LNNotificationsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3936B7EA19B90357007A3F6B /* LNNotificationsUI.framework */; };
 		392230B41C3091E90070D863 /* LNNotificationsUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3936B7EA19B90357007A3F6B /* LNNotificationsUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		39867B7E19E5E8D300664D3C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39B66DBE19B9020500BED640 /* Main.storyboard */; };
@@ -56,6 +58,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3836898D1CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SGNavigationBarNotificationView.h; sourceTree = "<group>"; };
+		3836898E1CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SGNavigationBarNotificationView.m; sourceTree = "<group>"; };
+		3836898F1CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SGNavigationBarNotificationView.xib; sourceTree = "<group>"; };
 		3936B7E519B90357007A3F6B /* LNNotificationsUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = LNNotificationsUI.xcodeproj; path = ../LNNotificationsUI/LNNotificationsUI.xcodeproj; sourceTree = "<group>"; };
 		39867B7C19E5E89200664D3C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		39B66DB119B9020500BED640 /* LNNotificationsUIDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LNNotificationsUIDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -109,6 +114,9 @@
 		39B66DB319B9020500BED640 /* LNNotificationsUIDemo */ = {
 			isa = PBXGroup;
 			children = (
+				3836898D1CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.h */,
+				3836898E1CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.m */,
+				3836898F1CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.xib */,
 				39B66DB819B9020500BED640 /* AppDelegate.h */,
 				39B66DB919B9020500BED640 /* AppDelegate.m */,
 				39B66DBB19B9020500BED640 /* ViewController.h */,
@@ -207,6 +215,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				39B66DC219B9020500BED640 /* Images.xcassets in Resources */,
+				383689911CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.xib in Resources */,
 				39D646E719E5E4C60069C197 /* demo.aiff in Resources */,
 				39867B7E19E5E8D300664D3C /* Main.storyboard in Resources */,
 			);
@@ -222,6 +231,7 @@
 				39B66DBD19B9020500BED640 /* ViewController.m in Sources */,
 				39B66DBA19B9020500BED640 /* AppDelegate.m in Sources */,
 				39B66DB719B9020500BED640 /* main.m in Sources */,
+				383689901CE9C5E9006BA1F9 /* SGNavigationBarNotificationView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

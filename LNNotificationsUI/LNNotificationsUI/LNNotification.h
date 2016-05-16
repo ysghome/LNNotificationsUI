@@ -34,6 +34,8 @@
 @property (nonatomic, copy) NSDate* date;
 @property (nonatomic) BOOL displaysWithRelativeDateFormatting;
 
+@property (nonatomic, strong) UIView* customView;
+
 @property (nonatomic, copy) NSString* soundName;
 
 /**
